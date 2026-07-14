@@ -1,30 +1,18 @@
 const console = require('console');
 const fs = require('fs')
-const http = require('http');
 
-const myServer = http.createServer((req, res) => {
-    // console.log("New Server Request");
-    // console.log(req)
-    const log = `${Date.now()}: New Request Recieved  form  ${req.url}\n`
-    fs.appendFile('log.txt', log, (err, data) => {
-        switch (req.url) {
-            case "/":
-                res.end("Welcome to server")
-                break;
-            case "/about":
-                res.end("I will tell you later I am busy")
-                break;
-            case "/contact":
-                res.write("Just 1 minute...\n");
-                setTimeout(() => {
-                    res.end("0370 61 68 427")
-                }, 5000)
-                break;
-            default:
-                 res.end("404 Page Not Found");
-                break;
-        }
+const express = require('express')
+const url = require('url')
 
-    })
-});
-myServer.listen(8000, () => console.log("Server Started"));
+
+const app = express()
+
+app.get('/' , (req,res) => {
+    res.send("Welcome to Express world")
+})
+app.get('/about' ,(req,res) =>{
+    res.send(`This is about page of express hello from ${req.query.name} `)
+} )
+
+app.listen(8000,  () => console.log("Server Started"));
+
