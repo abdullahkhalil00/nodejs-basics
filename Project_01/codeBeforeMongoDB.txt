@@ -1,0 +1,139 @@
+const express = require('express');
+const app = express()
+const users = require('./MOCK_DATA.json')
+const fs = require('fs')
+const mongoose = require("mongoose");
+const { type } = require('os');
+
+//connect with monogo database First we make schema and then model to get , post , fetch etc 
+mongoose.connect('mongodb://127.0.0.1:27017/project_01')
+.then(() => console.log("MongoDB Connected"))
+.catch((err) => console.log(err))
+
+const useSchema = new mongoose.Schema({
+    firstName:{
+        type:String,
+        required:true
+    },
+    lastName:{
+        type:String,
+        required:false
+    },
+    email:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    emajobTitile:{
+        type:String,
+       
+    },
+    gender:{
+        type:String
+    }
+})
+
+const makeUser = mongoose.model("user" , useSchema)
+
+// Middleware
+app.use(express.urlencoded({ extended: false }))
+app.use((req,res,next) =>{
+    console.log("Middle ware 2")
+    req.myUserName = "Khalil"
+    // return res.json({msg:"Middleware 2"})
+    next();
+})
+app.use((req,res,next) =>{
+    console.log("Middle ware 3",req.myUserName)
+    //  return res.json({msg:"Middleware 3"})
+    next();
+})
+app.use((req,res,next) =>{
+    fs.appendFile('log.txt' ,`\n ${Date.now()} , Methond ${req.method} , path ${req.method}`,(err,data) =>{
+        next()
+    })
+})
+app.get('/api/users', (req, res) => {
+    res.setHeader('myName' , 'Abdullah')
+    return res.json(users)
+})
+
+app.get('/users', (req, res) => {
+    const html = `
+    <ul>
+${users.map((user) => {
+        return `<li>${user.first_name}</li>`;
+    }).join("")}
+</ul>
+    `
+    res.send(html)
+})
+
+app
+    .route("/api/users/:id")
+    .get((req, res) => {
+        const id = Number(req.params.id)
+        const user = users.find((user) => user.id === id)
+        return res.json(user)
+    })
+    .post((req, res) => {
+        const body = req.body
+        users.push({ ...body, id: users.length + 1 })
+        console.log(body)
+        fs.writeFile(
+            "./MOCK_DATA.json",
+            JSON.stringify(users),
+            (err, data) => {
+                return res.json({ status: "success", id: users.length })
+            }
+        );
+
+    })
+    .patch((req, res) => {
+        const id = Number(req.params.id)
+        const item = users.find(item => item.id === id);
+
+        const body = req.body
+        console.log(body)
+
+        if (!item) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        item.first_name = body.first_name;
+        item.last_name = body.last_name;
+        item.gender = body.gender;
+        item.job_title = body.job_title;
+
+
+        fs.writeFile(
+            "./MOCK_DATA.json",
+            JSON.stringify(users),
+            (err, data) => {
+                return res.json({ status: "success", id: body.id })
+            }
+        );
+    })
+    .delete((req, res) => {
+        const id = Number(req.params.id);
+
+        const index = users.findIndex(user => user.id === id);
+        console.log(index)
+        if (index === -1) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        users.splice(index, 1);
+
+
+        fs.writeFile(
+            "./MOCK_DATA.json",
+            JSON.stringify(users),
+            (err, data) => {
+                return res.json({ status: "success", id:id })
+            }
+        );
+    })
+
+const Port = 8000;
+app.listen(Port, () => console.log("Server Started"))

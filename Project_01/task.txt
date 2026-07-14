@@ -1,0 +1,11 @@
+REST API - JSON
+
+Get /users - HTML Document Render
+Get /api/user - List all users JSON - Done  ( For Mobile Application )
+
+Get /api/users/1- Get the user with ID 1
+Get /api/users/2- Get the user with ID 2
+
+POST /api/users- Create new user
+
+Pach /api/user/1 - Edit the user with ID 1
