@@ -2,14 +2,21 @@ const { nanoid } = require('nanoid')
 const URL = require('../models/url')
 async function handleURL(req, res) {
     const body = req.body;
-    if (!body.url) return res.status(400).json({ err: "Bad Request" })
+ 
+    if (!body.url) return res.status(404).json({ err: "Bad Request" })
     const shortID = nanoid(8)
     await URL.create({
         shordId: shortID,
         redirectURL: body.url,
         vistHistory: [],
     });
-    return res.json({ id: shortID })
+    return res.render("home",{
+        id:  shortID
+    })
+    
+    
+    
+ 
 }
 async function hanleAnalytics(req, res) {
     const shordId = req.params.shordId;
@@ -21,6 +28,9 @@ async function hanleAnalytics(req, res) {
     })
 
 }
+
+
+
 module.exports = {
     handleURL,
     hanleAnalytics

@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Shortener</title>
+  <style>
+    .result-box {
+      margin-bottom: 20px;
+      padding: 16px 20px;
+      background: #1e293b;
+      border: 1px solid #3b82f6;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .result-box h3 {
+      color: #22c55e;
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .result-box a {
+      color: #60a5fa;
+      text-decoration: none;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .result-box a:hover {
+      text-decoration: underline;
+    }
+
+    /* Base reset and page setup */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #0f172a;
+      /* Dark sleek background */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* App container */
+    .shortener-container {
+      background-color: #1e293b;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 600px;
+      border: 1px solid #334155;
+    }
+
+    .shortener-container h1 {
+      color: #f8fafc;
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .shortener-container p.subtitle {
+      color: #94a3b8;
+      font-size: 14px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    /* Combined input and button layout */
+    .input-group-main {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .input-group-main input[type="url"] {
+      flex: 1;
+      padding: 16px;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: #0f172a;
+      color: #f8fafc;
+      transition: border-color 0.3s ease;
+    }
+
+    .input-group-main input[type="url"]:focus {
+      outline: none;
+      border-color: #3b82f6;
+      /* Blue highlight */
+    }
+
+    .shorten-btn {
+      padding: 0 24px;
+      background-color: #3b82f6;
+      border: none;
+      border-radius: 8px;
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .shorten-btn:hover {
+      background-color: #2563eb;
+    }
+
+    .shorten-btn:active {
+      transform: scale(0.98);
+    }
+
+    /* Advanced options toggler */
+    .advanced-toggle {
+      display: block;
+      color: #3b82f6;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+      margin-bottom: 15px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Hidden checkbox to drive css toggling without JS */
+    #toggle-options {
+      display: none;
+    }
+
+    .advanced-fields {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-out;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    /* Expand panel when hidden checkbox is ticked */
+    #toggle-options:checked~.advanced-fields {
+      max-height: 200px;
+      /* Adjust height based on elements inside */
+      margin-bottom: 20px;
+      padding-top: 5px;
+    }
+
+    /* Advanced grid configuration styling */
+    .field-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .field-box label {
+      color: #94a3b8;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .field-box input,
+    .field-box select {
+      padding: 10px;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      font-size: 14px;
+      background-color: #0f172a;
+      color: #f8fafc;
+    }
+
+    .field-box input:focus,
+    .field-box select:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    .page-container {
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .result-box {
+      background: #1e293b;
+      border: 1px solid #3b82f6;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+    }
+
+    .table-container {
+      width: 100%;
+      margin-top: 20px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #2563eb;
+    }
+
+    thead th {
+      color: #fff;
+      padding: 14px;
+      text-align: left;
+      font-size: 15px;
+    }
+
+    tbody tr:nth-child(even) {
+      background: #273549;
+    }
+
+    tbody tr:hover {
+      background: #334155;
+    }
+
+    tbody td {
+      padding: 14px;
+      color: #f8fafc;
+      border-bottom: 1px solid #334155;
+      word-break: break-word;
+    }
+
+    tbody td a {
+      color: #60a5fa;
+      text-decoration: none;
+    }
+
+    tbody td a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive adaptation */
+    @media (max-width: 480px) {
+      .input-group-main {
+        flex-direction: column;
+      }
+
+      .shorten-btn {
+        padding: 16px;
+      }
+
+      .advanced-fields {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-container">
+
+    <% if (locals.id) { %>
+      <div class="result-box">
+        <h3>✅ URL Generated Successfully</h3>
+        <a href="/url/<%= id %>" target="_blank">
+          http://localhost:8001/url/<%= id %>
+        </a>
+      </div>
+    <% } %>
+
+    <div class="shortener-container">
+      <h1>Shorten Your Link</h1>
+      <p class="subtitle">
+        Paste your long target URL to generate a compact, shareable link.
+      </p>
+
+      <form action="/url" method="POST">
+        <div class="input-group-main">
+          <input
+            type="url"
+            name="url"
+            placeholder="Paste a link here (e.g., https://example.com)"
+            required
+          >
+          <button type="submit" class="shorten-btn">Shorten</button>
+        </div>
+      </form>
+    </div>
+
+    <% if (locals.urls) { %>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>S. No</th>
+              <th>Short URL</th>
+              <th>Redirect URL</th>
+              <th>Total Clicks</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% urls.forEach((element, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td>
+                  <a href="/url/<%= element.shordId %>" target="_blank">
+                    <%= element.shordId %>
+                  </a>
+                </td>
+                <td><%= element.redirectURL %></td>
+                <td><%= element.vistHistory.length %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+
+  </div>
+</body>
+
+</html>
